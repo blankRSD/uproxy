@@ -1,0 +1,16 @@
+#! /usr/bin/env php
+
+<?php
+
+use Acme\SetCommand;
+use Acme\UnsetCommand;
+use Symfony\Component\Console\Application;
+
+require 'vendor/autoload.php';
+
+$app = new Application('Set Proxy', '0.1');
+
+$app->add(new SetCommand);
+$app->add(new UnsetCommand);
+
+$app->run();
