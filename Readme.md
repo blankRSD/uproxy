@@ -4,11 +4,11 @@
 Clone this repository and then
 ```bash
 cd uproxy
-./uproxy set <host> <port>
+sudo ./uproxy set <host> <port>
 ```
 
 To unset the proxy
 ```bash
-./uproxy unset
+sudo ./uproxy unset
 ```
 

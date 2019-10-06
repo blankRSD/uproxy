@@ -8,7 +8,6 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
 class SetCommand extends Command
 {
@@ -51,7 +50,8 @@ class SetCommand extends Command
 
 		$this->addNpmProxy($host, $port, $output)
 			 ->addGitProxy($host, $port, $output)
-			 ->addAptProxy($host, $port, $output);
+			 ->addAptProxy($host, $port, $output)
+			 ->addEnvProxy($host, $port, $output);
 	}
 
 	/**
@@ -110,13 +110,38 @@ class SetCommand extends Command
 	{
 		if(!$this->filesystem->exists('/etc/apt/apt.conf'))
 			$this->filesystem->touch('/etc/apt/apt.conf');
+
+		$this->filesystem->copy('/etc/apt/apt.conf', '/etc/apt/apt.conf.bak', true);
 		
 		$text = "Acquire::ftp::proxy \"http://{$host}:{$port}\";\nAcquire::http::proxy \"http://{$host}:{$port}\";\nAcquire::https::proxy \"http://{$host}:{$port}\";";
-		
-		$this->filesystem->dumpFile('/etc/apt/apt.conf', $text);
+
+		$this->filesystem->appendToFile('/etc/apt/apt.conf', $text);
 		$output->writeln("<info>Apt proxy set</info>");
 
 		return $this;
 	}
-	
+
+	/**
+	 * Add Environment proxy
+	 *
+	 * @param string $host
+	 * @param string $port
+	 * @param \Symfony\Component\Console\Output\OutputInterface $output
+	 * @return $this
+	 */
+	private function addEnvProxy($host, $port, OutputInterface $output)
+	{
+		if (!$this->filesystem->exists('/etc/environment'))
+			$this->filesystem->touch('/etc/environment');
+
+		$this->filesystem->copy('/etc/environment', '/etc/environment.bak', true);
+
+		$text = "http_proxy=\"http://{$host}:{$port}\"\nhttps_proxy=\"http://{$host}:{$port}\"\nftp_proxy=\"http://{$host}:{$port}\"\nno_proxy=\"localhost,127.0.0.1,::1\"";
+
+		$this->filesystem->appendToFile('/etc/environment', $text);
+		$output->writeln("<info>Env proxy set</info>");
+
+		return $this;
+	}
+
 }

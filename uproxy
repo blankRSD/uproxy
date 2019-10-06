@@ -11,6 +11,6 @@ require 'vendor/autoload.php';
 $app = new Application('Set Proxy', '0.1');
 
 $app->add(new SetCommand(new \Symfony\Component\Filesystem\Filesystem()));
-$app->add(new UnsetCommand);
+$app->add(new UnsetCommand(new \Symfony\Component\Filesystem\Filesystem()));
 
 $app->run();
