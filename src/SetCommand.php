@@ -64,8 +64,11 @@ class SetCommand extends Command
 	 */
 	private function addNpmProxy($host, $port, OutputInterface $output)
 	{
-		$command = "npm config set proxy http://{$host}:{$port} && npm config set https-proxy http://{$host}:{$port}";
-		$process = new Process($command);
+		$commands = [
+			"npm config set proxy http://{$host}:{$port}",
+			"npm config set https-proxy http://{$host}:{$port}"
+		];
+		$process = new Process(implode(' && ', $commands));
 		$process->run();
 
 		if(!$process->isSuccessful())
@@ -86,8 +89,11 @@ class SetCommand extends Command
 	 */
 	private function addGitProxy($host, $port, OutputInterface $output)
 	{
-		$command = "git config --global http.proxy http://{$host}:{$port} && git config --global https.proxy http://{$host}:{$port}";
-		$process = new Process($command);
+		$commands = [
+			"git config --global http.proxy http://{$host}:{$port}",
+			"git config --global https.proxy http://{$host}:{$port}"
+		];
+		$process = new Process(implode(' && ', $commands));
 		$process->run();
 
 		if(!$process->isSuccessful())
@@ -113,9 +119,13 @@ class SetCommand extends Command
 
 		$this->filesystem->copy('/etc/apt/apt.conf', '/etc/apt/apt.conf.bak', true);
 		
-		$text = "Acquire::ftp::proxy \"http://{$host}:{$port}\";\nAcquire::http::proxy \"http://{$host}:{$port}\";\nAcquire::https::proxy \"http://{$host}:{$port}\";";
+		$lines = [
+			"Acquire::ftp::proxy \"http://{$host}:{$port}\";",
+			"Acquire::http::proxy \"http://{$host}:{$port}\";",
+			"Acquire::https::proxy \"http://{$host}:{$port}\";",
+		];
 
-		$this->filesystem->appendToFile('/etc/apt/apt.conf', $text);
+		$this->filesystem->appendToFile('/etc/apt/apt.conf', implode("\n", $lines));
 		$output->writeln("<info>Apt proxy set</info>");
 
 		return $this;
@@ -136,9 +146,14 @@ class SetCommand extends Command
 
 		$this->filesystem->copy('/etc/environment', '/etc/environment.bak', true);
 
-		$text = "http_proxy=\"http://{$host}:{$port}\"\nhttps_proxy=\"http://{$host}:{$port}\"\nftp_proxy=\"http://{$host}:{$port}\"\nno_proxy=\"localhost,127.0.0.1,::1\"";
+		$lines = [
+			"http_proxy=\"http://{$host}:{$port}\"",
+			"https_proxy=\"http://{$host}:{$port}\"",
+			"ftp_proxy=\"http://{$host}:{$port}\"",
+			"no_proxy=\"localhost,127.0.0.1,*.test,::1\""
+		];
 
-		$this->filesystem->appendToFile('/etc/environment', $text);
+		$this->filesystem->appendToFile('/etc/environment', implode("\n", $lines));
 		$output->writeln("<info>Env proxy set</info>");
 
 		return $this;

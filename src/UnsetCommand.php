@@ -57,8 +57,11 @@ class UnsetCommand extends Command
 	 */
 	private function removeNpmProxy(OutputInterface $output)
 	{
-		$command = "npm config rm proxy && npm config rm https-proxy"; 
-		$process = new Process($command);
+		$commands = [
+			"npm config rm proxy",
+			"npm config rm https-proxy"
+		];
+		$process = new Process(implode(' && ', $commands));
 		$process->run();
 
 		if(!$process->isSuccessful())
@@ -77,8 +80,11 @@ class UnsetCommand extends Command
 	 */
 	private function removeGitProxy(OutputInterface $output)
 	{
-		$command = "git config --global --unset http.proxy && git config --global --unset https.proxy";
-		$process = new Process($command);
+		$commands = [
+			"git config --global --unset http.proxy",
+			"git config --global --unset https.proxy"
+		];
+		$process = new Process(implode(' && ', $commands));
 		$process->run();
 
 		if(!$process->isSuccessful())

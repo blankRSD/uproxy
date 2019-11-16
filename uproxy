@@ -8,7 +8,7 @@ use Symfony\Component\Console\Application;
 
 require 'vendor/autoload.php';
 
-$app = new Application('Set Proxy', '0.1');
+$app = new Application('Set Proxy', '0.2');
 
 $app->add(new SetCommand(new \Symfony\Component\Filesystem\Filesystem()));
 $app->add(new UnsetCommand(new \Symfony\Component\Filesystem\Filesystem()));
